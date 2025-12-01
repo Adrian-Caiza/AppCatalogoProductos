@@ -12,20 +12,24 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _indiceNavegacion = 0;
+  
+  int _categoriaSeleccionadaIndex = 0; 
+  final List<String> _categorias = ['Todos', 'Electrónica', 'Fotografía', 'Accesorios'];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: _buildAppBar(context),
-      // COLUMN: Estructura principal vertical
+      
       body: Column(
         children: [
-          // Contenido principal (se expande)
+          
           Expanded(
             child: _buildContenidoPrincipal(),
           ),
-          // Barra de navegación (altura fija)
+          
+          
           BarraNavegacion(
             indiceActual: _indiceNavegacion,
             onTap: (indice) {
@@ -40,13 +44,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
-    // MEDIAQUERY: Obtener información del dispositivo
+    
     final screenWidth = MediaQuery.of(context).size.width;
     
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
-      // ROW dentro del título para layout horizontal
+      
       title: Row(
         children: [
           const Icon(Icons.store, color: Colors.blue),
@@ -58,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          // Mostrar ancho de pantalla (para debug/aprendizaje)
+          
           const Spacer(),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -85,19 +89,105 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  
   Widget _buildContenidoPrincipal() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        
+        if (constraints.maxWidth >= 900) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              
+              SizedBox(
+                width: 250,
+                child: _buildSidebar(),
+              ),
+              
+              VerticalDivider(width: 1, color: Colors.grey[300]),
+              
+              Expanded(
+                child: _buildScrollableContent(mostrarCategoriasHorizontales: false),
+              ),
+            ],
+          );
+        } 
+        
+        else {
+          return _buildScrollableContent(mostrarCategoriasHorizontales: true);
+        }
+      },
+    );
+  }
+
+  
+  Widget _buildSidebar() {
+    return Container(
+      color: Colors.white, 
+      child: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(20.0),
+            child: Text(
+              "Categorías",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _categorias.length,
+              itemBuilder: (context, index) {
+                final isSelected = _categoriaSeleccionadaIndex == index;
+                return ListTile(
+                  title: Text(
+                    _categorias[index],
+                    style: TextStyle(
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: isSelected ? Colors.blue : Colors.black87,
+                    ),
+                  ),
+                  leading: Icon(
+                    _getIconoCategoria(_categorias[index]), 
+                    color: isSelected ? Colors.blue : Colors.grey,
+                  ),
+                  selected: isSelected,
+                  selectedTileColor: Colors.blue.withOpacity(0.1),
+                  onTap: () {
+                    setState(() {
+                      _categoriaSeleccionadaIndex = index;
+                    });
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  
+  Widget _buildScrollableContent({required bool mostrarCategoriasHorizontales}) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Encabezado
+          
           _buildEncabezado(),
           const SizedBox(height: 20),
-          // Categorías (scroll horizontal)
-          _buildCategorias(),
-          const SizedBox(height: 20),
-          // Título de sección
+          
+          
+          if (mostrarCategoriasHorizontales) ...[
+            _buildCategorias(),
+            const SizedBox(height: 20),
+          ],
+          
+          
           const Text(
             'Productos Destacados',
             style: TextStyle(
@@ -106,7 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          // Grid de productos (RESPONSIVO)
+          
           _buildGridProductos(),
         ],
       ),
@@ -114,10 +204,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildEncabezado() {
-    // LAYOUTBUILDER: Construye UI según el espacio disponible
+    
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Si el ancho es mayor a 600px, mostrar en ROW
+        
         if (constraints.maxWidth > 600) {
           return Row(
             children: [
@@ -127,7 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           );
         }
-        // Si no, mostrar solo el banner principal
+        
         return _buildBannerPrincipal();
       },
     );
@@ -145,7 +235,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         borderRadius: BorderRadius.circular(16),
       ),
-      // STACK: Texto superpuesto sobre el fondo
+      
       child: Stack(
         children: [
           Padding(
@@ -183,7 +273,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-          // Icono decorativo posicionado
+          
           Positioned(
             right: 20,
             bottom: 20,
@@ -229,20 +319,22 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCategorias() {
-    final categorias = ['Todos', 'Electrónica', 'Fotografía', 'Accesorios'];
-    
     return SizedBox(
       height: 40,
-      // ROW con scroll horizontal
+      
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: categorias.length,
+        itemCount: _categorias.length,
         itemBuilder: (context, index) {
-          final esSeleccionado = index == 0;
+          final esSeleccionado = _categoriaSeleccionadaIndex == index;
           return Container(
             margin: const EdgeInsets.only(right: 12),
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                setState(() {
+                  _categoriaSeleccionadaIndex = index;
+                });
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: esSeleccionado ? Colors.blue : Colors.white,
                 foregroundColor: esSeleccionado ? Colors.white : Colors.black,
@@ -254,7 +346,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              child: Text(categorias[index]),
+              child: Text(_categorias[index]),
             ),
           );
         },
@@ -263,27 +355,24 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildGridProductos() {
-    // LAYOUTBUILDER: Determinar número de columnas según el ancho
+    
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Calcular columnas según el ancho disponible
+        
         int columnas;
         double childAspectRatio;
         
+        
         if (constraints.maxWidth >= 1200) {
-          // Desktop grande: 4 columnas
           columnas = 4;
           childAspectRatio = 0.75;
         } else if (constraints.maxWidth >= 900) {
-          // Desktop: 3 columnas
           columnas = 3;
           childAspectRatio = 0.75;
         } else if (constraints.maxWidth >= 600) {
-          // Tablet: 3 columnas
           columnas = 3;
           childAspectRatio = 0.7;
         } else {
-          // Móvil: 2 columnas
           columnas = 2;
           childAspectRatio = 0.65;
         }
@@ -304,5 +393,16 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     );
+  }
+
+  
+  IconData _getIconoCategoria(String categoria) {
+    switch (categoria) {
+      case 'Todos': return Icons.apps;
+      case 'Electrónica': return Icons.devices;
+      case 'Fotografía': return Icons.camera_alt;
+      case 'Accesorios': return Icons.headset;
+      default: return Icons.category;
+    }
   }
 }

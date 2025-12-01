@@ -9,15 +9,15 @@ class ProductoDetalleScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Extendemos el cuerpo detrás del AppBar (aunque usaremos botones personalizados)
+      
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // PARTE SUPERIOR: Imagen y elementos superpuestos con Stack
+            
             Stack(
               children: [
-                // 1. Imagen grande de fondo (simulada con un contenedor e icono)
+                
                 Container(
                   height: 400,
                   width: double.infinity,
@@ -29,7 +29,7 @@ class ProductoDetalleScreen extends StatelessWidget {
                     ),
                   ),
                   child: Hero(
-                    tag: producto.id, // Animación Hero para transición suave
+                    tag: producto.id, 
                     child: Icon(
                       _getIcono(producto.imagenUrl),
                       size: 150,
@@ -38,7 +38,7 @@ class ProductoDetalleScreen extends StatelessWidget {
                   ),
                 ),
 
-                // 2. Botón "Volver atrás" (Esquina superior izquierda)
+                
                 Positioned(
                   top: 50,
                   left: 20,
@@ -51,7 +51,7 @@ class ProductoDetalleScreen extends StatelessWidget {
                   ),
                 ),
 
-                // 3. Badge de descuento (Opcional - Esquina superior izquierda debajo de volver)
+                
                 Positioned(
                   top: 110,
                   left: 20,
@@ -71,7 +71,7 @@ class ProductoDetalleScreen extends StatelessWidget {
                   ),
                 ),
 
-                // 4. Ícono de corazón (favorito) (Esquina superior derecha)
+                
                 Positioned(
                   top: 50,
                   right: 20,
@@ -84,9 +84,9 @@ class ProductoDetalleScreen extends StatelessWidget {
                   ),
                 ),
 
-                // 5. Botón flotante "Agregar al carrito" (Esquina inferior derecha sobre la imagen)
+                
                 Positioned(
-                  bottom: 20, // Ajuste para que quede medio adentro medio afuera si se desea, o totalmente dentro
+                  bottom: 20, 
                   right: 20,
                   child: FloatingActionButton.extended(
                     onPressed: () {
@@ -102,13 +102,13 @@ class ProductoDetalleScreen extends StatelessWidget {
               ],
             ),
 
-            // PARTE INFERIOR: Información en Column
+            
             Padding(
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Nombre del producto
+                  
                   Text(
                     producto.nombre,
                     style: const TextStyle(
@@ -119,7 +119,7 @@ class ProductoDetalleScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
 
-                  // Categoría
+                  
                   Text(
                     producto.categoria,
                     style: TextStyle(
@@ -130,7 +130,7 @@ class ProductoDetalleScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
 
-                  // Precio
+                  
                   Row(
                     children: [
                       Text(
@@ -150,7 +150,7 @@ class ProductoDetalleScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
 
-                  // Título Descripción
+                  
                   const Text(
                     "Descripción",
                     style: TextStyle(
@@ -160,7 +160,7 @@ class ProductoDetalleScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
 
-                  // Texto Descripción detallada
+                  
                   Text(
                     "${producto.descripcion}. Este es un producto de excelente calidad diseñado para satisfacer tus necesidades tecnológicas. Cuenta con garantía extendida y soporte técnico especializado.",
                     style: TextStyle(
@@ -171,7 +171,7 @@ class ProductoDetalleScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 40),
 
-                  // Botón de Compra Adicional (Ancho completo)
+                  
                   SizedBox(
                     width: double.infinity,
                     height: 55,
@@ -202,7 +202,7 @@ class ProductoDetalleScreen extends StatelessWidget {
     );
   }
 
-  // Método auxiliar para obtener iconos (duplicado para mantener independencia visual)
+  
   IconData _getIcono(String tipo) {
     switch (tipo) {
       case 'laptop': return Icons.laptop;
