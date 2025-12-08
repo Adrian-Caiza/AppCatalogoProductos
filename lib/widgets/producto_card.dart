@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/producto.dart';
-import '../screens/producto_detalle_screen.dart'; // Importamos la nueva pantalla
+import '../screens/producto_detalle_screen.dart';
+import '../services/mock_cart_service.dart'; 
 
 class ProductoCard extends StatelessWidget {
   final Producto producto;
@@ -10,11 +11,56 @@ class ProductoCard extends StatelessWidget {
     required this.producto,
   });
 
+  // Método auxiliar para manejar la lógica de agregar
+  Future<void> _agregarRapido(BuildContext context) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final cartService = MockCartService();
+
+    // Feedback inmediato
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      const SnackBar(
+        content: Text('Agregando...'),
+        duration: Duration(milliseconds: 500),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+
+    try {
+      await cartService.addToCart(producto);
+      
+      // Verificamos si el widget sigue montado (aunque en StatelessWidget es menos crítico, es buena práctica)
+      if (context.mounted) {
+        messenger.hideCurrentSnackBar();
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text('${producto.nombre} agregado al carrito'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        messenger.hideCurrentSnackBar();
+        String msg = e is SimulationException ? e.message : "Error inesperado";
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(msg),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GestureDetector( // Agregamos detector de gestos
+    return GestureDetector(
       onTap: () {
-        // Navegación a la pantalla de detalle
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -23,7 +69,6 @@ class ProductoCard extends StatelessWidget {
         );
       },
       child: Container(
-        // CONTAINER: Widget para decoración y dimensiones
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
@@ -35,14 +80,12 @@ class ProductoCard extends StatelessWidget {
             ),
           ],
         ),
-        // STACK: Permite superponer widgets (como capas)
         child: Stack(
           children: [
-            // COLUMN: Organiza widgets verticalmente
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Imagen del producto
+                // Imagen
                 Expanded(
                   flex: 3,
                   child: Container(
@@ -53,7 +96,7 @@ class ProductoCard extends StatelessWidget {
                         top: Radius.circular(16),
                       ),
                     ),
-                    child: Hero( // Agregamos Hero para animación compartida
+                    child: Hero(
                       tag: producto.id,
                       child: Icon(
                         _getIcono(producto.imagenUrl),
@@ -63,12 +106,11 @@ class ProductoCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Información del producto
+                // Información
                 Expanded(
                   flex: 2,
                   child: Padding(
                     padding: const EdgeInsets.all(12),
-                    // COLUMN anidada para texto
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -91,7 +133,6 @@ class ProductoCard extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        // ROW: Organiza widgets horizontalmente
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -103,16 +144,24 @@ class ProductoCard extends StatelessWidget {
                                 color: Colors.green,
                               ),
                             ),
-                            Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: Colors.blue,
+                            // BOTÓN DE AGREGAR AL CARRITO (MODIFICADO)
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () => _agregarRapido(context), // Llama a la función
                                 borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Icon(
-                                Icons.add_shopping_cart,
-                                color: Colors.white,
-                                size: 18,
+                                child: Container(
+                                  padding: const EdgeInsets.all(6), // Aumenté un poco el padding táctil
+                                  decoration: BoxDecoration(
+                                    color: Colors.blue,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Icon(
+                                    Icons.add_shopping_cart,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                ),
                               ),
                             ),
                           ],
@@ -123,7 +172,7 @@ class ProductoCard extends StatelessWidget {
                 ),
               ],
             ),
-            // POSITIONED: Posiciona un widget en coordenadas específicas dentro del Stack
+            // Etiqueta NUEVO
             Positioned(
               top: 8,
               right: 8,
@@ -149,23 +198,15 @@ class ProductoCard extends StatelessWidget {
     );
   }
 
-  // Metodo auxiliar para obtener iconos
   IconData _getIcono(String tipo) {
     switch (tipo) {
-      case 'laptop':
-        return Icons.laptop;
-      case 'headphones':
-        return Icons.headphones;
-      case 'watch':
-        return Icons.watch;
-      case 'camera':
-        return Icons.camera_alt;
-      case 'keyboard':
-        return Icons.keyboard;
-      case 'mouse':
-        return Icons.mouse;
-      default:
-        return Icons.shopping_bag;
+      case 'laptop': return Icons.laptop;
+      case 'headphones': return Icons.headphones;
+      case 'watch': return Icons.watch;
+      case 'camera': return Icons.camera_alt;
+      case 'keyboard': return Icons.keyboard;
+      case 'mouse': return Icons.mouse;
+      default: return Icons.shopping_bag;
     }
   }
 }

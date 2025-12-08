@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../models/producto.dart';
 import '../widgets/producto_card.dart';
 import '../widgets/barra_navegacion.dart';
+import '../screens/cart_screen.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -33,9 +35,13 @@ class _HomeScreenState extends State<HomeScreen> {
           BarraNavegacion(
             indiceActual: _indiceNavegacion,
             onTap: (indice) {
-              setState(() {
-                _indiceNavegacion = indice;
-              });
+              if (indice == 3) {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const CartScreen()));
+              } else {
+                setState(() {
+                  _indiceNavegacion = indice;
+                });
+              }
             },
           ),
         ],
